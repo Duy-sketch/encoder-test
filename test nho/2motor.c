@@ -174,17 +174,25 @@ while (1)
 
     QuayThuan1();
     Xuat_PWM(&htim4, TIM_CHANNEL_1, 75);
+    QuayThuan2();
+    Xuat_PWM(&htim3, TIM_CHANNEL_1, 75);
 
     HAL_Delay(2000); // quay 2 giây
 
     Dung1();
     Xuat_PWM(&htim4, TIM_CHANNEL_1, 0);
+    Dung2();
+    Xuat_PWM(&htim3, TIM_CHANNEL_1, 0);
+
 
     // Đọc số xung thực tế trong 2 giây
     xung1 = __HAL_TIM_GET_COUNTER(&htim1);
+    xung2 = __HAL_TIM_GET_COUNTER(&htim2);
 
-    sprintf(str1, "THUAN, %ld\r\n", xung1);
+    sprintf(str1, "THUAN1, %ld\r\n", xung1);
+    sprintf(str2, "THUAN2, %ld\r\n", xung2);
     HAL_UART_Transmit(&huart2, (uint8_t*)str1, strlen(str1), 100);
+    HAL_UART_Transmit(&huart2, (uint8_t*)str2, strlen(str2), 100);
 
     HAL_Delay(1000); // nghỉ 1s rồi lặp lại
 }
