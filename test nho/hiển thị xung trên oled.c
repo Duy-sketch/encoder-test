@@ -50,6 +50,8 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
+UART_HandleTypeDef huart2;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -61,6 +63,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -154,6 +157,7 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM1_Init();
   MX_TIM3_Init();
+  MX_USART2_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL);
@@ -162,60 +166,63 @@ HAL_TIM_Encoder_Start_IT(&htim1, TIM_CHANNEL_ALL);
 HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 SSD1306_Init();
 
+  SSD1306_GotoXY (0,0);
+  SSD1306_Puts ("Hello", &Font_11x18, 1);
+  SSD1306_GotoXY (0, 30);
+  SSD1306_Puts ("Duy", &Font_11x18, 1);
+  SSD1306_UpdateScreen();
+  HAL_Delay (1000);
+
+  SSD1306_ScrollRight(0,7);
+  HAL_Delay(3000);
+  SSD1306_ScrollLeft(0,7);
+  HAL_Delay(3000);
+  SSD1306_Stopscroll();
+  SSD1306_Clear();
+
   uint32_t xung1 = 0;
   uint32_t xung2 = 0;
   char str1[50];
   char str2[50];
-  SSD1306_GotoXY (0,0);
-    SSD1306_Puts ("NIZAR", &Font_11x18, 1);
-    SSD1306_GotoXY (0, 30);
-    SSD1306_Puts ("MOHIDEEN", &Font_11x18, 1);
-    SSD1306_UpdateScreen();
-    HAL_Delay (1000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  __HAL_TIM_SET_COUNTER(&htim2, 0); // reset encoder về 0
-	  	      __HAL_TIM_SET_COUNTER(&htim1, 0); // reset encoder về 0
-
-	  	      QuayThuan1();
-	  	      Xuat_PWM(&htim4, TIM_CHANNEL_1, 75);
-	  	      QuayThuan2();
-	  	      Xuat_PWM(&htim3, TIM_CHANNEL_1, 75);
-
-	  	      HAL_Delay(2000); // quay 2 giây
-
-	  	      Dung1();
-	  	      Xuat_PWM(&htim4, TIM_CHANNEL_1, 0);
-	  	      Dung2();
-	  	      Xuat_PWM(&htim3, TIM_CHANNEL_1, 0);
-
-
-	  	      // Đọc số xung thực tế trong 2 giây
-	  	      xung1 = __HAL_TIM_GET_COUNTER(&htim1);
-	  	      xung2 = __HAL_TIM_GET_COUNTER(&htim2);
-
-	  	      sprintf(str1, "DC1 %ld\r\n", xung1);
-	  	      sprintf(str2, "DC2 %ld\r\n", xung2);
-
-
-	  	          SSD1306_GotoXY(0, 0);
-	  	          SSD1306_Puts(str1, &Font_11x18, 1);
-	  	          SSD1306_GotoXY(0, 30);
-	  	          SSD1306_Puts(str2, &Font_11x18, 1);
-	  	          SSD1306_UpdateScreen();
-
-	  	      HAL_Delay(1000); // nghỉ 1s rồi lặp lại
-	  	  }
     /* USER CODE END WHILE */
+	  __HAL_TIM_SET_COUNTER(&htim2, 0); // reset encoder về 0
+	      __HAL_TIM_SET_COUNTER(&htim1, 0); // reset encoder về 0
+	      QuayThuan1();
+	          Xuat_PWM(&htim4, TIM_CHANNEL_1, 75);
+	          QuayThuan2();
+	          Xuat_PWM(&htim3, TIM_CHANNEL_1, 75);
 
+	          HAL_Delay(2000); // quay 2 giây
+
+	          Dung1();
+	          Xuat_PWM(&htim4, TIM_CHANNEL_1, 0);
+	          Dung2();
+	          Xuat_PWM(&htim3, TIM_CHANNEL_1, 0);
+	          xung1 = __HAL_TIM_GET_COUNTER(&htim1);
+	              xung2 = __HAL_TIM_GET_COUNTER(&htim2);
+	          sprintf(str1, "%ld\r\n", xung1);
+	              sprintf(str2, "%ld\r\n", xung2);
+	          SSD1306_GotoXY (0,0);
+	          SSD1306_Puts ("DC1", &Font_11x18, 1);
+	          SSD1306_GotoXY (60, 0);
+	          SSD1306_Puts (str1, &Font_16x26, 1);
+	          SSD1306_GotoXY (0,30);
+	          	          SSD1306_Puts ("DC1", &Font_11x18, 1);
+	          	          SSD1306_GotoXY (60, 30);
+	          	          SSD1306_Puts (str2, &Font_16x26, 1);
+	          	  		SSD1306_UpdateScreen();
+	          	  		HAL_Delay (1000);
+
+  }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
-
 
 /**
   * @brief System Clock Configuration
@@ -504,6 +511,39 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 2 */
   HAL_TIM_MspPostInit(&htim4);
+
+}
+
+/**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
 
 }
 
